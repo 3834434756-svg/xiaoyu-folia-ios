@@ -126,10 +126,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          cd "$RUNNER_TEMP/out"
-          IPA="$(ls *.ipa)"
+          IPA="$(find "$RUNNER_TEMP/out" -name '*.ipa' -print -quit)"
           TAG="xiaoyu-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" "$IPA" \
+            --repo "${{ github.repository }}" \
             --title "小宇Folia 0.7.29 未签名 IPA" \
             --notes "官方 folia 0.7.29 + iOS 直连层（网易云本地 eapi/weapi 加密，零后端可听歌）+ 小宇品牌。未签名 IPA：TrollStore 直接导入，或 Sideloadly/AltStore + 免费 Apple ID 自签（7 天）。" \
             --latest
