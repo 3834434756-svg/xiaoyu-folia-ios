@@ -64,7 +64,7 @@ jobs:
       - name: 安装 Web 依赖
         working-directory: src
         env:
-          npm_config_allow_remote: "true"
+          npm_config_allow_remote: "all"
         run: |
           export ELECTRON_SKIP_BINARY_DOWNLOAD=1
           export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
