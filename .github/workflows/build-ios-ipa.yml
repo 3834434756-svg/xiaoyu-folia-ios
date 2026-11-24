@@ -14,13 +14,12 @@ permissions:
   contents: write
 
 env:
-  XCODE_PATH: /Applications/Xcode_16.4.app
   NODE_VERSION: 24
 
 jobs:
   build:
     name: Build unsigned IPA
-    runs-on: macos-15
+    runs-on: macos-15-intel
     timeout-minutes: 90
 
     steps:
@@ -54,7 +53,9 @@ jobs:
           xcodebuild -version
 
       - name: 选择 Xcode
-        run: sudo xcode-select -s "$XCODE_PATH"
+        run: |
+          xcodebuild -version
+          echo "使用镜像默认 Xcode"
 
       - name: 安装 Node ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
