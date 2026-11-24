@@ -24,11 +24,11 @@ jobs:
     timeout-minutes: 90
 
     steps:
-      - name: Checkout 官方 0.7.29 源码
+      - name: Checkout 官方 0.7.29 源码（锁定到补丁 base commit）
         uses: actions/checkout@v4
         with:
           repository: chthollyphile/folia-major
-          ref: main
+          ref: 7a93f626c8210737cf915f439edecc2686676352
           fetch-depth: 1
           path: src
 
@@ -38,16 +38,15 @@ jobs:
           curl -sL -o port.patch "https://raw.githubusercontent.com/${{ github.repository }}/main/port.patch"
           wc -c port.patch
 
-      - name: 应用移植补丁（git am）
-        working-directory: src
+      - name: 应用移植补丁
         run: |
           set -euo pipefail
-          git config user.email "ci@example.com"
-          git config user.name "XiaoYu Build"
-          # 官方主线 commit 与补丁 base 一致则可直接 am；否则用 3-way
-          git am --3way ../port.patch || { echo "::error::补丁应用失败"; git am --abort 2>/dev/null || true; exit 1; }
+          cd src
+          # 用 git apply（不依赖历史对象），base commit 与补丁完全一致
+          git apply --binary ../port.patch
           echo "✅ 补丁已应用"
           grep -q 'neteaseDirect' src/services/onlineMusic/web/netease.ts && echo "✅ 直连层已就位"
+          grep -q 'com.xiaoyu.folia' capacitor.config.ts && echo "✅ 小宇品牌已就位"
 
       - name: 环境
         run: |
