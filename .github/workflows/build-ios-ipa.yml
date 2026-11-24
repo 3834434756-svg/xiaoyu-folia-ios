@@ -46,7 +46,7 @@ jobs:
           git apply --binary ../port.patch
           echo "✅ 补丁已应用"
           grep -q 'neteaseDirect' src/services/onlineMusic/web/netease.ts && echo "✅ 直连层已就位"
-          grep -q 'com.xiaoyu.folia' capacitor.config.ts && echo "✅ 小宇品牌已就位"
+          grep -q 'com.xiaoyu.folia' capacitor.config.json && echo "✅ 小宇品牌已就位"
 
       - name: 环境
         run: |
