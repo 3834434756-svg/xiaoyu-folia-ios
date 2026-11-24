@@ -1,76 +1,3 @@
-From be11972aa9f6fecda0e8b945489fb57ca6554818 Mon Sep 17 00:00:00 2001
-From: XiaoYu Build <ci@example.com>
-Date: Tue, 24 Nov 2026 23:52:28 +0800
-Subject: [PATCH] =?UTF-8?q?feat:=20=E5=B0=8F=E5=AE=87Folia=200.7.29=20iOS?=
- =?UTF-8?q?=20-=20native=20direct=20Netease=20+=20Capacitor=20shell?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
----
- .github/workflows/build-ios-ipa.yml           | 115 +++
- capacitor.config.ts                           |  24 +
- ios/.gitignore                                |  13 +
- ios/App/App.xcodeproj/project.pbxproj         | 380 +++++++++
- .../xcshareddata/IDEWorkspaceChecks.plist     |   8 +
- .../xcshareddata/xcschemes/App.xcscheme       |  78 ++
- ios/App/App/AppDelegate.swift                 |  52 ++
- .../AppIcon.appiconset/AppIcon-512@2x.png     | Bin 0 -> 154137 bytes
- .../AppIcon.appiconset/Contents.json          |  14 +
- ios/App/App/Assets.xcassets/Contents.json     |   6 +
- .../Splash.imageset/Contents.json             |  23 +
- .../Splash.imageset/splash-2732x2732-1.png    | Bin 0 -> 160705 bytes
- .../Splash.imageset/splash-2732x2732-2.png    | Bin 0 -> 160705 bytes
- .../Splash.imageset/splash-2732x2732.png      | Bin 0 -> 160705 bytes
- .../App/Base.lproj/LaunchScreen.storyboard    |  32 +
- ios/App/App/Base.lproj/Main.storyboard        |  19 +
- ios/App/App/Info.plist                        |  92 +++
- ios/App/App/SceneDelegate.swift               |  68 ++
- ios/App/CapApp-SPM/Package.swift              |  25 +
- .../Sources/CapApp-SPM/CapApp-SPM.swift       |   1 +
- ios/debug.xcconfig                            |   1 +
- package-lock.json                             | 728 +++++++++++++++++-
- package.json                                  |  17 +-
- sources/netease/core/netease.ts               |   6 +
- sources/netease/core/neteaseEnv.ts            |   6 +
- src/services/nativeHttpChannel.ts             |  74 ++
- .../onlineMusic/neteaseDirect/crypto.ts       |  87 +++
- .../onlineMusic/neteaseDirect/device.ts       | 259 +++++++
- .../onlineMusic/neteaseDirect/directClient.ts | 136 ++++
- .../onlineMusic/neteaseDirect/endpoints.ts    | 327 ++++++++
- .../onlineMusic/neteaseDirect/index.ts        |  16 +
- src/services/onlineMusic/runtimeApiBase.ts    |  44 ++
- src/services/onlineMusic/web/netease.ts       |  19 +-
- 33 files changed, 2645 insertions(+), 25 deletions(-)
- create mode 100644 .github/workflows/build-ios-ipa.yml
- create mode 100644 capacitor.config.ts
- create mode 100644 ios/.gitignore
- create mode 100644 ios/App/App.xcodeproj/project.pbxproj
- create mode 100644 ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
- create mode 100644 ios/App/App.xcodeproj/xcshareddata/xcschemes/App.xcscheme
- create mode 100644 ios/App/App/AppDelegate.swift
- create mode 100644 ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
- create mode 100644 ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json
- create mode 100644 ios/App/App/Assets.xcassets/Contents.json
- create mode 100644 ios/App/App/Assets.xcassets/Splash.imageset/Contents.json
- create mode 100644 ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png
- create mode 100644 ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png
- create mode 100644 ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png
- create mode 100644 ios/App/App/Base.lproj/LaunchScreen.storyboard
- create mode 100644 ios/App/App/Base.lproj/Main.storyboard
- create mode 100644 ios/App/App/Info.plist
- create mode 100644 ios/App/App/SceneDelegate.swift
- create mode 100644 ios/App/CapApp-SPM/Package.swift
- create mode 100644 ios/App/CapApp-SPM/Sources/CapApp-SPM/CapApp-SPM.swift
- create mode 100644 ios/debug.xcconfig
- create mode 100644 src/services/nativeHttpChannel.ts
- create mode 100644 src/services/onlineMusic/neteaseDirect/crypto.ts
- create mode 100644 src/services/onlineMusic/neteaseDirect/device.ts
- create mode 100644 src/services/onlineMusic/neteaseDirect/directClient.ts
- create mode 100644 src/services/onlineMusic/neteaseDirect/endpoints.ts
- create mode 100644 src/services/onlineMusic/neteaseDirect/index.ts
- create mode 100644 src/services/onlineMusic/runtimeApiBase.ts
-
 diff --git a/.github/workflows/build-ios-ipa.yml b/.github/workflows/build-ios-ipa.yml
 new file mode 100644
 index 0000000..c956fc1
@@ -192,36 +119,27 @@ index 0000000..c956fc1
 +            --notes "官方 folia 0.7.29 + iOS 直连层（网易云本地 eapi/weapi 加密，零后端可听歌）。未签名 IPA：TrollStore 直接导入，或 Sideloadly/AltStore + 免费 Apple ID 自签（7 天）。" \
 +            --latest
 +          echo "下载: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
-diff --git a/capacitor.config.ts b/capacitor.config.ts
+diff --git a/capacitor.config.json b/capacitor.config.json
 new file mode 100644
-index 0000000..5aa3255
+index 0000000..9fd2cfb
 --- /dev/null
-+++ b/capacitor.config.ts
-@@ -0,0 +1,24 @@
-+// capacitor.config.ts
-+// 小宇专属版 Folia for iOS (iPhone/iPad) — Capacitor 原生壳配置。
-+// Web 层保持 Vite 构建产物 dist/ 原样；网易云走本地 eapi/weapi 直连，零后端可听歌。
-+import type { CapacitorConfig } from '@capacitor/cli';
-+
-+const config: CapacitorConfig = {
-+  appId: 'com.xiaoyu.folia',
-+  appName: '小宇Folia',
-+  webDir: 'dist',
-+  backgroundColor: '#09090b',
-+  ios: {
-+    // WebView 约束到 safeAreaLayoutGuide，不进入状态栏/主指示条区域，避免双重留白。
-+    contentInset: 'never',
-+    backgroundColor: '#09090b',
++++ b/capacitor.config.json
+@@ -0,0 +1,15 @@
++{
++  "appId": "com.xiaoyu.folia",
++  "appName": "小宇Folia",
++  "webDir": "dist",
++  "backgroundColor": "#09090b",
++  "ios": {
++    "contentInset": "never",
++    "backgroundColor": "#09090b"
 +  },
-+  plugins: {
-+    // 网易云直连：用原生 URLSession 发请求，绕过 WKWebView 的 CORS；Cookie 由业务层自行管理。
-+    CapacitorHttp: {
-+      enabled: true,
-+    },
-+  },
-+};
-+
-+export default config;
++  "plugins": {
++    "CapacitorHttp": {
++      "enabled": true
++    }
++  }
++}
 diff --git a/ios/.gitignore b/ios/.gitignore
 new file mode 100644
 index 0000000..f470299
@@ -10017,7 +9935,7 @@ index 0000000..77db70c
 +}
 diff --git a/ios/App/CapApp-SPM/Package.swift b/ios/App/CapApp-SPM/Package.swift
 new file mode 100644
-index 0000000..bef535c
+index 0000000..7f7d1f7
 --- /dev/null
 +++ b/ios/App/CapApp-SPM/Package.swift
 @@ -0,0 +1,25 @@
@@ -10034,7 +9952,7 @@ index 0000000..bef535c
 +            targets: ["CapApp-SPM"])
 +    ],
 +    dependencies: [
-+        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.5.3")
++        .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "7.6.10")
 +    ],
 +    targets: [
 +        .target(
@@ -12322,6 +12240,3 @@ index 0c8dd19..20a56b6 100644
 +        },
 +    }),
  });
--- 
-2.43.0
-
